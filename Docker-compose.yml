@@ -1,0 +1,45 @@
+version: '3.7'
+
+networks:
+  app-web:
+    driver: bridge
+    ipam: 
+      driver: default
+      config: 
+        - subnet: 192.168.1.0/24
+  app-db:
+    driver: bridge
+    ipam:
+      driver: default
+        - subnet: 192.168.2.0/23
+services:
+  app-java:
+    build: .
+      command: ./mvnw package
+      ports: 
+        - 8080:8080
+      networks: 
+        app-web:
+           ipv4_address: 192.168.1.2
+        app-db:
+          - ipv4_address: 192.168.2.2
+             
+
+
+
+
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: petshop:latest
+    depends_on: 
+      - app
+    ports:
+      - 8000:80
+  app:
+    container_name: maven:3.3-jdk-8
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment: 
+      MYSQL_ROOT_PASSWORD: petclinic
+      MYSQL_DATABASE: petclinic 
+     
