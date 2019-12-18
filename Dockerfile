@@ -1,15 +1,9 @@
-FROM openjdk:11-jdk AS src
-RUN cd /
-RUN apt-get install git -y
-RUN mkdir spring-petclinic
+FROM maven:3.3-jdk-8 AS src
 RUN git clone https://github.com/spring-projects/spring-petclinic.git
-RUN chmod +x /spring-petclinic
 WORKDIR /spring-petclinic
+RUN mvn install
 
-
-FROM maven:3.3-jdk-8
-COPY --from=src /spring-petclinic .
-RUN cd .
-RUN mvn package
-EXPOSE 8080
-ENTRYPOINT [ "java", "-jar", "target/*.jar" ]
+FROM openjdk:8-jre-alpine
+COPY --from=src /spring-petclinic/target/spring-petclinic-2.2.0.BUILD-SNAPSHOT.jar / 
+ENTRYPOINT ["/usr/bin/java"]
+CMD ["-jar","spring-petclinic-2.2.0.BUILD-SNAPSHOT.jar"]
